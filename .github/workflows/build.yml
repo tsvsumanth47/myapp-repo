@@ -52,10 +52,37 @@ jobs:
          role-to-assume: arn:aws:iam::339712826475:role/aws-cred-role
 
       - name: ECR login
+        id: login-ecr
         run:  aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 339712826475.dkr.ecr.us-west-2.amazonaws.com
 
-      - name: Build and Push Docker Image
+      #- name: Build and Push Docker Image
+      #  run: |
+      #   docker build -t springboot-eks-repo .
+      #   docker tag springboot-eks-repo:latest 339712826475.dkr.ecr.us-west-2.amazonaws.com/springboot-eks-repo:latest
+      #   docker push 339712826475.dkr.ecr.us-west-2.amazonaws.com/springboot-eks-repo:latest
+      #- name: Build and Push Docker Image
+      #  run: |
+      #    "echo 'testing job'"
+      #    "git config user.email tsvsumanth47@gmail.com"
+      #    "git config user.name tsvsumanth47"
+      #    "cat manifests/deployment.yaml"
+      #    "cd manifests && sed -i 's+339712826475.dkr.ecr.us-west-2.amazonaws.com/springboot-eks-repo.*+tsvsumanth47/myapp-repo:${BUILD_NUMBER}+g' deployment.yaml"
+      #    "git add -A"
+      #    "git commit -m 'Done by Jenkins Job changemanifest: ${env.BUILD_NUMBER}'"
+      #    "git push  https://github.com/tsvsumanth47/myapp-repo.git HEAD:master"
+      - name: Get commit hash
+        id: get-commit-hash
+        run: echo "::set-output name=commit-hash::$(git rev-parse --short HEAD)"
+      - name: Get timestamp
+        id: get-timestamp
+        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%d-%H-%M')"
+      - name: Build, tag, and push the image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: springboot-eks-repo
+          IMAGE_TAG: ${{ steps.get-commit-hash.outputs.commit-hash }}-${{ steps.get-timestamp.outputs.timestamp }}
         run: |
-         docker build -t springboot-eks-repo .
-         docker tag springboot-eks-repo:latest 339712826475.dkr.ecr.us-west-2.amazonaws.com/springboot-eks-repo:latest
-         docker push 339712826475.dkr.ecr.us-west-2.amazonaws.com/springboot-eks-repo:latest
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        
