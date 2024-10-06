@@ -56,6 +56,6 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-         docker build -t springboot-app-githubactions .
+         docker build -t springboot-eks-repo .
          docker tag springboot-eks-repo:latest 339712826475.dkr.ecr.us-west-2.amazonaws.com/springboot-eks-repo:latest
          docker push 339712826475.dkr.ecr.us-west-2.amazonaws.com/springboot-eks-repo:latest
