@@ -42,9 +42,9 @@ jobs:
       - name: Configure AWS Credentials 
         uses: aws-actions/configure-aws-credentials@v4
         with:
-        audience: sts.amazonaws.com
-        aws-region: us-west-2
-        role-to-assume: arn:aws:iam::339712826475:role/aws-cred-role
+         audience: sts.amazonaws.com
+         aws-region: us-west-2
+         role-to-assume: arn:aws:iam::339712826475:role/aws-cred-role
 
       - name: ECR login
         run:  aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 339712826475.dkr.ecr.us-west-2.amazonaws.com
