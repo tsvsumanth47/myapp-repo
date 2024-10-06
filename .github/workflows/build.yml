@@ -51,10 +51,18 @@ jobs:
          aws-region: us-west-2
          role-to-assume: arn:aws:iam::339712826475:role/aws-cred-role
 
-      - name: ECR login
+      - name: Login to Amazon ECR
         id: login-ecr
-        run:  aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 339712826475.dkr.ecr.us-west-2.amazonaws.com
+        uses: aws-actions/amazon-ecr-login@v2
 
+      - name: Build, tag, and push docker image to Amazon ECR
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: springboot-eks-repo
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
       #- name: Build and Push Docker Image
       #  run: |
       #   docker build -t springboot-eks-repo .
@@ -70,19 +78,5 @@ jobs:
       #    "git add -A"
       #    "git commit -m 'Done by Jenkins Job changemanifest: ${env.BUILD_NUMBER}'"
       #    "git push  https://github.com/tsvsumanth47/myapp-repo.git HEAD:master"
-      - name: Get commit hash
-        id: get-commit-hash
-        run: echo "::set-output name=commit-hash::$(git rev-parse --short HEAD)"
-      - name: Get timestamp
-        id: get-timestamp
-        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%d-%H-%M')"
-      - name: Build, tag, and push the image to Amazon ECR
-        id: build-image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: springboot-eks-repo
-          IMAGE_TAG: ${{ steps.get-commit-hash.outputs.commit-hash }}-${{ steps.get-timestamp.outputs.timestamp }}
-        run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+      
         
