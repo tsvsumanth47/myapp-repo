@@ -24,7 +24,7 @@ permissions:
   id-token: write
 
 jobs:
-  build and publish image:
+  build-and-publish-image:
     uses: tsvsumanth47/github-reusable-workflow/.github/workflows/maven-ci.yaml@maven-ci
     with:
       config-path: dummy
