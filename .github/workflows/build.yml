@@ -13,12 +13,8 @@ on:
         description: 'Log level'
         required: true
         default: 'warning'
-        type: choice
-        options:
-        - info
-        - warning
-        - debug
-        
+        type: string
+                
 permissions:
   contents: read
   id-token: write
