@@ -25,4 +25,4 @@ jobs:
     with:
       config-path: dummy
     secrets:
-      personal_access_token: ${{ secrets.token }}
+      SONAR_TOKEN: ${{ secrets.token }}
